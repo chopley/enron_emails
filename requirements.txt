@@ -1,0 +1,8 @@
+ipykernel
+jupyter
+autopep8
+pandas==0.25.2
+matplotlib
+scipy
+ggplot
+seaborn
