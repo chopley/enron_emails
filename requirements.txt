@@ -6,3 +6,4 @@ matplotlib
 scipy
 ggplot
 seaborn
+sklearn
