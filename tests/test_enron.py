@@ -1,10 +1,12 @@
+'''
+Created on 01 Nov 2019
+Tests of the utils.py functions
+@author: charles
+'''
+
 from unittest import TestCase
 import numpy.testing as npt
 from utils.utils import *
-
-
- 
-
 
 class test_utils(TestCase):
     def setUp(self):
