@@ -9,6 +9,7 @@ import numpy as np
 import seaborn as sns
 from matplotlib import pyplot as plt
 from math import ceil
+from sklearn import preprocessing 
 
 def clean_data(dataframe):
     #manually set the column names since they aren't in the csv file
@@ -60,12 +61,23 @@ def return_highest_senders(dataframe,percent):
     percent_of_messages = percent
     top_senders = ceil(alength * percent_of_messages/100)
     #extract the top senders from the dataframe
-    top_sender_df = dataframe.nlargest(n=top_senders,columns = "sent_count")
+    top_sender_df = dataframe.nlargest(n=top_senders, columns = "sent_count", keep='all')
     return(top_sender_df)
+
+def return_highest_sender_received(dataframe,percent):
+    df_sent_counts = generate_sender_counts(dataframe) 
+    top_sender_df = return_highest_senders(df_sent_counts,percent)
+    df_split = split_recipients(dataframe)
+    df_split_reindex = df_split.reset_index()
+    df_split_reindex.columns = ['message_id','level','recipient']
+    top_sender_received_messages = dataframe[['date','message_id','sender']].\
+        merge(df_split_reindex,'outer',right_on = 'message_id', left_on = 'message_id').\
+        merge(top_sender_df,how='inner',left_on = 'recipient', right_on = 'id')
+    return(top_sender_received_messages)
 
 def return_email_heatmap(dataframe, id_col, date_col, count_col,func_to_apply):
     groups = dataframe[[id_col,date_col,count_col]].groupby([id_col,pd.Grouper(key=date_col,freq='M')]).count()
-    groups[count_col] = func_to_apply(groups[count_col]) #log scale of the counts to provide better 
+    groups[count_col] = func_to_apply(groups[count_col]) #apply scaling function to the count column e.g. np.log10
     groups = groups.reset_index()
     groups[date_col] = pd.to_datetime(groups[date_col])
     groups_df = groups.set_index([date_col, id_col]
@@ -76,6 +88,28 @@ def return_email_heatmap(dataframe, id_col, date_col, count_col,func_to_apply):
     ).stack().sort_index(level=1).reset_index()
     gg = groups_df.pivot(index=date_col,columns=id_col,values=count_col).T.fillna(value=0)
     return(gg)
+
+def return_distinct_received_heatmap(dataframe, id_col, date_col, sender_col):
+    #count the number of distinct incoming addresses per month
+    groups = dataframe[[id_col,date_col,sender_col]].groupby([id_col,pd.Grouper(key=date_col,freq='M')]).agg('nunique')[sender_col] 
+    groups = groups.reset_index()
+    groups[date_col] = pd.to_datetime(groups[date_col])
+    groups_df = groups.set_index([date_col, id_col]
+    ).unstack(
+    fill_value=0
+    ).asfreq(
+    'M', fill_value=0
+    ).stack().sort_index(level=1).reset_index()
+    gg = groups_df.pivot(index=date_col,columns=id_col,values=sender_col).T.fillna(value=0)
+    #now we scale things to maximum per column
+    x = gg.values #returns a numpy array
+    min_max_scaler = preprocessing.MinMaxScaler()
+    x_scaled = min_max_scaler.fit_transform(x)
+    df = pd.DataFrame(x_scaled) 
+    df.columns = gg.columns
+    df = df.set_index(gg.index) 
+    return(df)
+
 
 def save_heatmap_plot_to_file(df, filename, x_size, y_size, title_text, legend_text):
     fig = plt.figure(figsize= (x_size,y_size))
