@@ -32,7 +32,8 @@ sender_message_counts = generate_sender_counts(enron_data_cleaned)
 total_messages = generate_total_counts(receiver_message_counts,
                                        sender_message_counts)
 #save output to csv
-total_messages.to_csv("message_count_totals.csv")
+total_messages.sort_values(by='sent_count',ascending=False).\
+    to_csv("message_count_totals.csv",index=False)
 #get the IDs with the highest percentage sent
 top_sender_df = return_highest_senders(sender_message_counts,
                                        0.2) #top 0.2 percent
