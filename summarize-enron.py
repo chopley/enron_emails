@@ -60,11 +60,7 @@ save_heatmap_plot_to_file(top_sender_messages_df,
 
 top_sender_received =  return_highest_sender_received(enron_data_cleaned,
                                                       0.2)
-top_sender_messages_df = return_email_heatmap(top_sender_received,
-                                              "id",
-                                              "date",
-                                              "sent_count",
-                                              np.log10)
+
 distinct_received_heatmap_df = return_distinct_received_heatmap(top_sender_received,
                                                                  "id", 
                                                                  "date",
