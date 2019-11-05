@@ -86,9 +86,6 @@ def return_highest_sender_received(dataframe,
         merge(top_sender_df,how='inner',left_on = 'recipient', right_on = 'id')
     return(top_sender_received_messages)
 
-<<<<<<< HEAD
-def return_email_heatmap(dataframe, id_col, date_col, count_col,func_to_apply):
-=======
 def return_email_heatmap(dataframe, 
                          id_col, 
                          date_col, 
@@ -96,7 +93,6 @@ def return_email_heatmap(dataframe,
                          func_to_apply):
     """
     """
->>>>>>> development
     groups = dataframe[[id_col,date_col,count_col]].groupby([id_col,pd.Grouper(key=date_col,freq='M')]).count()
     groups[count_col] = func_to_apply(groups[count_col]) #apply scaling function to the count column e.g. np.log10
     groups = groups.reset_index()
@@ -110,11 +106,6 @@ def return_email_heatmap(dataframe,
     gg = groups_df.pivot(index=date_col,columns=id_col,values=count_col).T.fillna(value=0)
     return(gg)
 
-<<<<<<< HEAD
-def return_distinct_received_heatmap(dataframe, id_col, date_col, sender_col):
-    #count the number of distinct incoming addresses per month
-    groups = dataframe[[id_col,date_col,sender_col]].groupby([id_col,pd.Grouper(key=date_col,freq='M')]).agg('nunique')[sender_col] 
-=======
 def return_distinct_received_heatmap(dataframe, 
                                      id_col, 
                                      date_col, 
@@ -124,7 +115,6 @@ def return_distinct_received_heatmap(dataframe,
     groups = dataframe[[id_col,date_col,sender_col]].\
         groupby([id_col,pd.Grouper(key=date_col,freq='M')]).\
         agg('nunique')[sender_col] 
->>>>>>> development
     groups = groups.reset_index()
     groups[date_col] = pd.to_datetime(groups[date_col])
     groups_df = groups.set_index([date_col, id_col]
@@ -144,9 +134,6 @@ def return_distinct_received_heatmap(dataframe,
     return(df)
 
 
-<<<<<<< HEAD
-def save_heatmap_plot_to_file(df, filename, x_size, y_size, title_text, legend_text):
-=======
 def save_heatmap_plot_to_file(df, 
                               filename, 
                               x_size, 
@@ -155,7 +142,6 @@ def save_heatmap_plot_to_file(df,
                               legend_text):
     """ Create timeseries heatmap from a matrix of dates + values
     """
->>>>>>> development
     fig = plt.figure(figsize= (x_size,y_size))
     ax = sns.heatmap(df,xticklabels =  7,cmap="Greys")
     ax.set_ylabel("Name",fontsize=15)
